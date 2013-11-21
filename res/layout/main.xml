@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/redBlack" >
+    android:background="@color/redBlack"
+       >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,7 +24,7 @@
             android:marqueeRepeatLimit="marquee_forever"
             android:scrollHorizontally="true"
             android:singleLine="true"
-            android:text="/mmn/sdcard/"
+            android:text="/Please, choose the folder with Image/"
             android:textColor="@color/regWhite" />
 
         <Button
