@@ -63,18 +63,23 @@ public class MainActivity extends Activity implements OnClickListener {
 		public void onItemClick(AdapterView<?> parent, View view, int position,
 				long id) {
 
-			String prompt = (String) parent.getItemAtPosition(position);
+			String indexImage = (String) parent.getItemAtPosition(position);
 
 			Intent i = new Intent(getApplicationContext(),
 					FullSizeActivity.class);
-
-			i.putExtra("Path", buffway);
+            transitionOnFullcreen();
+            i.putExtra("Path", buffway);
+            i.putExtra ("IndexImage", position);
 			startActivity(i);
 
-			Log.d("myTag", prompt);
+			Log.d("myTag454545", indexImage + position);
 
 		}
 	};
+
+    public void transitionOnFullcreen(){
+        FullSizeActivity.setTransitionFromGridView();
+    }
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {

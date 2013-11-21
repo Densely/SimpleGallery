@@ -33,8 +33,8 @@ public class FullSizeActivity extends TouchActivity {
     private static final int SWIPE_MAX_OFF_PATH = 250;
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
     static  String DIRECTORY = "/storage/sdcard0/Pictures/";
-    private static final String DATA_DIRECTORY = "/storage/sdcard0/";
-    private static final String DATA_FILE = "/storage/sdcard0/imagelist.dat";
+    private static String DATA_DIRECTORY = "/storage/sdcard0/Pictures";
+    private static String DATA_FILE = "/storage/sdcard0/imagelist.dat";
     View.OnTouchListener gestureListener;
     List<String> ImageList;
     private GestureDetector gestureDetector;
@@ -44,9 +44,15 @@ public class FullSizeActivity extends TouchActivity {
     private Animation slideRightOut;
     private ViewFlipper viewFlipper;
     private int currentView = 0;
-    private int currentIndex = 0;
+    private int currentIndex = 99999;
     private int maxIndex = 0;
     private float mMinZoomScale = 1;
+    SharedPreferences indexPrefs;
+    private static boolean transitionFromGridView;
+
+    public static void setTransitionFromGridView(){
+        transitionFromGridView = true;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,6 +60,20 @@ public class FullSizeActivity extends TouchActivity {
         Intent i = getIntent();
         DIRECTORY = i.getStringExtra("Path") + "/";
         Log.d("RRR123", DIRECTORY);
+        DATA_DIRECTORY = i.getStringExtra("Path") + "/";
+        Log.d("RRR123", DATA_DIRECTORY);
+        DATA_FILE = i.getStringExtra("Path") + "/imagelist.dat";
+
+        if(transitionFromGridView){
+            currentIndex = i.getIntExtra("IndexImage", 0);
+            transitionFromGridView = false;
+
+            indexPrefs = getSharedPreferences("currentIndex",
+                    MODE_PRIVATE);
+            SharedPreferences.Editor indexEditor = indexPrefs.edit();
+            indexEditor.putInt("currentIndex", currentIndex);
+            indexEditor.commit();
+        }
 
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -65,6 +85,10 @@ public class FullSizeActivity extends TouchActivity {
 
 
         File data_directory = new File(DATA_DIRECTORY);
+        ImageList = FindFiles();
+        FileUtils savedata1 = new FileUtils();
+        SystemClock.sleep(100);
+        savedata1.saveArray(DATA_FILE, ImageList);
 
         if (!data_directory.exists()) {
             if (data_directory.mkdir()) {
@@ -88,14 +112,16 @@ public class FullSizeActivity extends TouchActivity {
                 savedata.saveArray(DATA_FILE, ImageList);
             } else {
                 FileUtils readdata = new FileUtils();
-                Log.d("qqq423056", "YO");
+
                 ImageList = readdata.loadArray(DATA_FILE);
+                Log.d("qqq423056", "YO");
             }
         }
-
+        Log.d("qqq423056", "YO1");
         if (ImageList == null) {
             quit();
         }
+
 
         SharedPreferences indexPrefs = getSharedPreferences("currentIndex",
                 MODE_PRIVATE);
@@ -103,7 +129,10 @@ public class FullSizeActivity extends TouchActivity {
             currentIndex = indexPrefs.getInt("currentIndex", 0);
         }
 
+        Log.d("qqq423056", "YO3");
         maxIndex = ImageList.size() - 1;
+
+        Log.d("qqq423056", "YO"+ImageList.size());
 
         Log.v("currentIndex", "Index: " + currentIndex);
 
@@ -116,17 +145,26 @@ public class FullSizeActivity extends TouchActivity {
                 .loadAnimation(this, R.anim.slide_right_in);
         slideRightOut = AnimationUtils.loadAnimation(this,
                 R.anim.slide_right_out);
-
+        Log.d("qqq423056", "YO4");
         viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this,
                 android.R.anim.fade_in));
         viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this,
                 android.R.anim.fade_out));
+        Log.d("qqq423056", "YO6");
+
+
+
+
         Drawable d = Drawable.createFromPath(ImageList
                 .get(currentIndex));
+
+
+
+        Log.d("qqq423056", "YO5");
         iv.setImageDrawable(d);
         resetImage(iv, d);
         System.gc();
-
+        Log.d("qqq423056", "YO2");
         gestureDetector = new GestureDetector(new MyGestureDetector());
         gestureListener = new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
@@ -177,8 +215,10 @@ public class FullSizeActivity extends TouchActivity {
         }
     }
 
+
+
     private List<String> FindFiles() {
-        final List<String> tFileList = new ArrayList<String>();
+        List<String> tFileList = new ArrayList<String>();
         Resources resources = getResources();
 
         // array of valid image file extensions
@@ -189,9 +229,11 @@ public class FullSizeActivity extends TouchActivity {
         for (final String type : imageTypes) {
             filter[i] = new FilenameFilter() {
                 public boolean accept(File dir, String name) {
+
                     return name.endsWith("." + type);
                 }
             };
+
             i++;
         }
 
@@ -200,9 +242,12 @@ public class FullSizeActivity extends TouchActivity {
                 new File(DIRECTORY), filter, -1);
         for (File f : allMatchingFiles) {
             tFileList.add(f.getAbsolutePath());
+            Log.d("Finded files", f.getAbsolutePath().toString());
         }
         return tFileList;
     }
+
+
 
     @Override
     public void resetImage(ImageView iv, Drawable draw) {
