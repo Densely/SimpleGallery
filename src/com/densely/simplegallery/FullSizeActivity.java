@@ -58,6 +58,7 @@ public class FullSizeActivity extends TouchActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent i = getIntent();
+
         DIRECTORY = i.getStringExtra("Path") + "/";
         Log.d("RRR123", DIRECTORY);
         DATA_DIRECTORY = i.getStringExtra("Path") + "/";
@@ -155,8 +156,7 @@ public class FullSizeActivity extends TouchActivity {
 
 
 
-        Drawable d = Drawable.createFromPath(ImageList
-                .get(currentIndex));
+        Drawable d = Drawable.createFromPath(ImageList.get(currentIndex));
 
 
 
@@ -321,6 +321,10 @@ public class FullSizeActivity extends TouchActivity {
         return true;
     }
 
+
+
+
+
     public void quit() {
         SharedPreferences indexPrefs = getSharedPreferences("currentIndex",
                 MODE_PRIVATE);
@@ -335,6 +339,10 @@ public class FullSizeActivity extends TouchActivity {
         android.os.Process.killProcess(pid);
         System.exit(0);
     }
+
+
+
+
 
     class MyGestureDetector extends SimpleOnGestureListener {
 
