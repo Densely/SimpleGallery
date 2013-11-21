@@ -25,7 +25,8 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity implements OnClickListener {
 
-	public static String buffway;
+
+	public static String buffway;          // в эту переменную кладёт значение FolderWayPicker
 	String mybuffway;
 
 	final int REQUEST_CODE_WAY = 1;
@@ -66,8 +67,8 @@ public class MainActivity extends Activity implements OnClickListener {
 
 			Intent i = new Intent(getApplicationContext(),
 					FullSizeActivity.class);
-			// passing array index
-			i.putExtra("Path", prompt);
+
+			i.putExtra("Path", buffway);
 			startActivity(i);
 
 			Log.d("myTag", prompt);
@@ -77,10 +78,10 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		// � ��� �������� requestCode � resultCode
+
 		Log.d("myLogs", "requestCode = " + requestCode + ", resultCode = "
 				+ resultCode);
-		// ���� ������ ��
+
 		if (resultCode == RESULT_OK) {
 			switch (requestCode) {
 			case REQUEST_CODE_WAY:
@@ -92,7 +93,7 @@ public class MainActivity extends Activity implements OnClickListener {
 				break;
 
 			}
-			// ���� ��������� �� ��
+
 		} else {
 			Log.d("myLogs", "jhg");
 			Toast.makeText(this, "Wrong result", Toast.LENGTH_SHORT).show();
