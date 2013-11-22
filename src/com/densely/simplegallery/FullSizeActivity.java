@@ -86,10 +86,10 @@ public class FullSizeActivity extends TouchActivity {
 
 
         File data_directory = new File(DATA_DIRECTORY);
-        ImageList = FindFiles();
+        /*ImageList = FindFiles();
         FileUtils savedata1 = new FileUtils();
         SystemClock.sleep(100);
-        savedata1.saveArray(DATA_FILE, ImageList);
+        savedata1.saveArray(DATA_FILE, ImageList);*/
 
         if (!data_directory.exists()) {
             if (data_directory.mkdir()) {

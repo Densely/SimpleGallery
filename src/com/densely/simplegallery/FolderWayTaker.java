@@ -27,8 +27,8 @@ public class FolderWayTaker extends ListActivity {
 	public static final int PICK_DIRECTORY = 43522432;
 	private File dir;
 	private boolean showHidden = false;
-	private boolean onlyDirs = true ;
-	
+	private boolean onlyDirs = false ;
+
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
