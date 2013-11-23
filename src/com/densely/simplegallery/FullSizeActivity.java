@@ -183,8 +183,6 @@ public class FullSizeActivity extends TouchActivity {
                 showDialog(DIALOG);
 
 
-
-                break;
         }
 
         return super.onOptionsItemSelected(item);

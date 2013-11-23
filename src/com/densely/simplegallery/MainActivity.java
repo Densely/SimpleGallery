@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -257,7 +258,7 @@ public class MainActivity extends Activity implements OnClickListener {
         return tFileList;
     }
 
-    public void quit() {
+    protected void quit() {
         SharedPreferences indexPrefs = getSharedPreferences("currentIndex",
                 MODE_PRIVATE);
 
@@ -282,15 +283,21 @@ public class MainActivity extends Activity implements OnClickListener {
     public void setFirstImageBackGround() {
 
         ivBackGround.setImageResource(R.drawable.ic_splash_bg_first);
-        ivBackGround.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-
+        ivBackGround.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        LinearLayout llMain = (LinearLayout)findViewById(R.id.llMain);
+        llMain.setBackgroundColor(Color.rgb(206, 206, 206));
+        LinearLayout llDevide = (LinearLayout)findViewById(R.id.llDevide);
+        llDevide.setBackgroundColor(Color.BLACK);
     }
 
     public void setNoImageBackGround() {
 
         ivBackGround.setImageResource(R.drawable.ic_splash_bg_no_image);
         ivBackGround.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT));
-
+        LinearLayout llMain = (LinearLayout)findViewById(R.id.llMain);
+        llMain.setBackgroundColor(Color.rgb(206, 206, 206));;
+        LinearLayout llDevide = (LinearLayout)findViewById(R.id.llDevide);
+        llDevide.setBackgroundColor(Color.BLACK);
     }
 
     public void deleteBackGround() {
@@ -299,6 +306,10 @@ public class MainActivity extends Activity implements OnClickListener {
         int height = 0;
         LinearLayout.LayoutParams parms3 = new LinearLayout.LayoutParams(width,height);
         ivBackGround.setLayoutParams(parms3);
+        LinearLayout llMain = (LinearLayout)findViewById(R.id.llMain);
+        llMain.setBackgroundColor(R.color.redBlack);
+        LinearLayout llDevide = (LinearLayout)findViewById(R.id.llDevide);
+        llDevide.setBackgroundColor(Color.rgb(206, 206, 206));
     }
 
 

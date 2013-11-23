@@ -5,5 +5,7 @@
     <color name="regWhite">#ffffffff</color>
     <color name="dimgray">#696969</color>
     <color name="about">#ffd6d6d6</color>
+    <color name="back">#cecece</color>
+
 
 </resources>
