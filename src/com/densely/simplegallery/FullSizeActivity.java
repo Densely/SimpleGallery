@@ -26,9 +26,7 @@ import java.util.List;
 
 public class FullSizeActivity extends TouchActivity {
 	
-	TextView tvFileName;
-
-    private static final int EXIT = 0;
+	private static final int EXIT = 0;
     private static final int SWIPE_MIN_DISTANCE = 120;
     private static final int SWIPE_MAX_OFF_PATH = 250;
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
@@ -79,11 +77,8 @@ public class FullSizeActivity extends TouchActivity {
 
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         setContentView(R.layout.fullsize);
         ImageView iv = (ImageView) findViewById(R.id.zero);
-
-
 
         File data_directory = new File(DATA_DIRECTORY);
         /*ImageList = FindFiles();
@@ -113,58 +108,39 @@ public class FullSizeActivity extends TouchActivity {
                 savedata.saveArray(DATA_FILE, ImageList);
             } else {
                 FileUtils readdata = new FileUtils();
-
                 ImageList = readdata.loadArray(DATA_FILE);
-                Log.d("qqq423056", "YO");
-            }
+             }
         }
-        Log.d("qqq423056", "YO1");
+
         if (ImageList == null) {
             quit();
         }
 
 
-        SharedPreferences indexPrefs = getSharedPreferences("currentIndex",
-                MODE_PRIVATE);
+        SharedPreferences indexPrefs = getSharedPreferences("currentIndex", MODE_PRIVATE);
         if (indexPrefs.contains("currentIndex")) {
             currentIndex = indexPrefs.getInt("currentIndex", 0);
         }
 
-        Log.d("qqq423056", "YO3");
         maxIndex = ImageList.size() - 1;
 
-        Log.d("qqq423056", "YO"+ImageList.size());
-
-        Log.v("currentIndex", "Index: " + currentIndex);
+        Log.d("Image #", " "+ImageList.size());
 
         viewFlipper = (ViewFlipper) findViewById(R.id.flipper);
-
         slideLeftIn = AnimationUtils.loadAnimation(this, R.anim.slide_left_in);
-        slideLeftOut = AnimationUtils
-                .loadAnimation(this, R.anim.slide_left_out);
-        slideRightIn = AnimationUtils
-                .loadAnimation(this, R.anim.slide_right_in);
-        slideRightOut = AnimationUtils.loadAnimation(this,
-                R.anim.slide_right_out);
-        Log.d("qqq423056", "YO4");
-        viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this,
-                android.R.anim.fade_in));
-        viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this,
-                android.R.anim.fade_out));
-        Log.d("qqq423056", "YO6");
+        slideLeftOut = AnimationUtils.loadAnimation(this, R.anim.slide_left_out);
+        slideRightIn = AnimationUtils.loadAnimation(this, R.anim.slide_right_in);
+        slideRightOut = AnimationUtils.loadAnimation(this, R.anim.slide_right_out);
 
-
-
+        viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_in));
+        viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_out));
 
         Drawable d = Drawable.createFromPath(ImageList.get(currentIndex));
 
-
-
-        Log.d("qqq423056", "YO5");
         iv.setImageDrawable(d);
         resetImage(iv, d);
         System.gc();
-        Log.d("qqq423056", "YO2");
+
         gestureDetector = new GestureDetector(new MyGestureDetector());
         gestureListener = new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
@@ -188,7 +164,15 @@ public class FullSizeActivity extends TouchActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case EXIT:
-                quit();
+                //quit();
+
+                Intent i = new Intent(getApplicationContext(),
+                       ShareActivity.class);
+
+                i.putExtra("Path", ImageList.get(currentIndex));
+
+                startActivity(i);
+
                 break;
         }
 
@@ -215,12 +199,9 @@ public class FullSizeActivity extends TouchActivity {
         }
     }
 
-
-
     private List<String> FindFiles() {
         List<String> tFileList = new ArrayList<String>();
         Resources resources = getResources();
-
         // array of valid image file extensions
         String[] imageTypes = resources.getStringArray(R.array.image);
         FilenameFilter[] filter = new FilenameFilter[imageTypes.length];
@@ -272,9 +253,7 @@ public class FullSizeActivity extends TouchActivity {
             matrix.postScale(scale, scale);
 
             iv.setImageMatrix(matrix);
-        } else if (orientation == 1
-            //&& (float)draw.getIntrinsicHeight() >  (float)getWindowManager().getDefaultDisplay().getHeight()
-                ) {
+        } else if (orientation == 1) {
             scale = (float) getWindowManager().getDefaultDisplay().getHeight() / (float) draw.getIntrinsicHeight();
             mMinZoomScale = scale;
             matrix.postScale(scale, scale);
@@ -321,10 +300,6 @@ public class FullSizeActivity extends TouchActivity {
         return true;
     }
 
-
-
-
-
     public void quit() {
         SharedPreferences indexPrefs = getSharedPreferences("currentIndex",
                 MODE_PRIVATE);
@@ -340,16 +315,11 @@ public class FullSizeActivity extends TouchActivity {
         System.exit(0);
     }
 
-
-
-
-
     class MyGestureDetector extends SimpleOnGestureListener {
 
 
         @Override
         public boolean onDoubleTap(final MotionEvent e) {
-
 
             ImageView view = (ImageView) findViewById(R.id.zero);
 
@@ -459,6 +429,5 @@ public class FullSizeActivity extends TouchActivity {
         }
 
     }
-
 
 }

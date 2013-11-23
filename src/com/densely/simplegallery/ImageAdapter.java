@@ -12,8 +12,9 @@ import android.widget.ImageView;
 
 public class ImageAdapter extends BaseAdapter {
 	private Context mContext;
-	ArrayList<String> itemList = new ArrayList<String>();
 
+	ArrayList<String> itemList = new ArrayList<String>();
+    private int size;
 	public ImageAdapter(Context c) {
 		mContext = c;
 	}
@@ -29,13 +30,11 @@ public class ImageAdapter extends BaseAdapter {
 
 	@Override
 	public Object getItem(int position) {
-		// TODO Auto-generated method stub
 		return itemList.get(position);
 	}
 
 	@Override
 	public long getItemId(int position) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
@@ -44,15 +43,15 @@ public class ImageAdapter extends BaseAdapter {
 		ImageView imageView;
 		if (convertView == null) { 
 			imageView = new ImageView(mContext);
-			imageView.setLayoutParams(new GridView.LayoutParams(220, 220));
+			imageView.setLayoutParams(new GridView.LayoutParams(getSize(), getSize()));
 			imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 			imageView.setPadding(8, 8, 8, 8);
 		} else {
 			imageView = (ImageView) convertView;
 		}
 
-		Bitmap bm = decodeSampledBitmapFromUri(itemList.get(position), 220,
-				220);
+		Bitmap bm = decodeSampledBitmapFromUri(itemList.get(position), getSize(),
+                getSize());
 
 		imageView.setImageBitmap(bm);
 		return imageView;
@@ -96,4 +95,11 @@ public class ImageAdapter extends BaseAdapter {
 		return inSampleSize;
 	}
 
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
 }
