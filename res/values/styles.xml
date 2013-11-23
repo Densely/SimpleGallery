@@ -21,4 +21,8 @@
 
     </style>
 
+    <style name="FullScreenLandTheme" parent="android:Theme.DeviceDefault.NoActionBar">
+
+    </style>
+
 </resources>

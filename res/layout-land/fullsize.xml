@@ -1,0 +1,43 @@
+<ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
+    	android:id="@+id/flipper"
+    	android:layout_width="fill_parent" 
+    	android:layout_height="fill_parent"
+        style="@style/FullScreenLandTheme">
+    	
+	<FrameLayout
+		android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"
+    	android:gravity="center"
+            android:background="@color/redBlack">
+    	<ImageView
+    		android:id="@+id/zero"
+    		android:layout_width="fill_parent"
+    		android:layout_height="fill_parent"
+    		android:scaleType="matrix"/>
+    </FrameLayout>
+    
+    <FrameLayout
+		android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"
+    	android:gravity="center"
+        android:background="@color/redBlack">
+    	<ImageView
+    		android:id="@+id/one"
+    		android:layout_width="fill_parent"
+    		android:layout_height="fill_parent"
+    		android:scaleType="matrix"/>
+    </FrameLayout>
+    
+    <FrameLayout
+		android:layout_width="fill_parent"
+    	android:layout_height="fill_parent"
+    	android:gravity="center"
+        android:background="@color/redBlack">
+    	<ImageView
+    		android:id="@+id/two"
+    		android:layout_width="fill_parent"
+    		android:layout_height="fill_parent"
+    		android:scaleType="matrix"/>
+    </FrameLayout>
+    
+</ViewFlipper>

@@ -1,10 +1,13 @@
 package com.densely.simplegallery;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
@@ -33,6 +36,12 @@ public class MainActivity extends Activity implements OnClickListener {
     private static String DATA_DIRECTORY;
     private static String DATA_FILE;
     final int REQUEST_CODE_WAY = 1;
+    final int DIALOG = 1;
+    SharedPreferences prefsFirstLaunch = null;
+
+
+
+
     String mybuffway;
     Button btnBrowse;
     TextView tvWay;
@@ -63,7 +72,7 @@ public class MainActivity extends Activity implements OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-
+        prefsFirstLaunch = getSharedPreferences("firstrun", MODE_PRIVATE);
         btnBrowse = (Button) findViewById(R.id.btnBrowse);
         btnBrowse.setOnClickListener(this);
 
@@ -211,6 +220,11 @@ public class MainActivity extends Activity implements OnClickListener {
         if (indexPrefs.contains("currentIndex")) {
             currentIndex = indexPrefs.getInt("currentIndex", 0);
         }
+        if (prefsFirstLaunch.getBoolean("firstrun", true)) {
+            showDialog(DIALOG);
+            prefsFirstLaunch.edit().putBoolean("firstrun", false).commit();
+        }
+
     }
 
     private List<String> FindFiles() {
@@ -286,5 +300,46 @@ public class MainActivity extends Activity implements OnClickListener {
         LinearLayout.LayoutParams parms3 = new LinearLayout.LayoutParams(width,height);
         ivBackGround.setLayoutParams(parms3);
     }
+
+
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        AlertDialog.Builder adb = new AlertDialog.Builder(this);
+        adb.setTitle("About");
+
+        LinearLayout view = (LinearLayout) getLayoutInflater()
+                .inflate(R.layout.about, null);
+
+        adb.setView(view);
+
+        return adb.create();
+    }
+
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+        super.onPrepareDialog(id, dialog);
+        if (id == DIALOG) {
+
+            TextView tvAbout = (TextView) dialog.getWindow().findViewById(
+                    R.id.tvAbout);
+            TextView tvAbout1 = (TextView) dialog.getWindow().findViewById(
+                    R.id.tvAbout1);
+            TextView tvAbout2 = (TextView) dialog.getWindow().findViewById(
+                    R.id.tvAbout2);
+            TextView tvAbout3 = (TextView) dialog.getWindow().findViewById(
+                    R.id.tvAbout3);
+            TextView tvAbout4 = (TextView) dialog.getWindow().findViewById(
+                    R.id.tvAbout4);
+            Typeface face = Typeface.createFromAsset(getAssets(),
+                    "fonts/arial.ttf");
+            tvAbout.setTypeface(face);
+            tvAbout1.setTypeface(face);
+            tvAbout2.setTypeface(face);
+            tvAbout3.setTypeface(face);
+            tvAbout4.setTypeface(face);
+        }
+    }
+
 
 }

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+            android:id="@+id/langInterface"
+            android:dialogIcon="@drawable/ic_launcher"
+            android:dialogTitle="Change language"
+            android:entries="@array/lang_entries"
+            android:entryValues="@array/lang_entries_value"
+            android:title="@string/setting_lang_title"/>
+
+    <!--CheckBoxPreference
+            holo:id="@+id/checkbox_wifi"
+            holo:defaultValue="false"
+            holo:summaryOff="@string/check_box_wifi_summary_off"
+            holo:summaryOn="@string/check_box_wifi_summary_on"
+            holo:title="@string/check_box_wifi_title"
+            holo:enabled="false"/-->
+
+
+</PreferenceScreen>

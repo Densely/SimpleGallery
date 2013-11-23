@@ -1,9 +1,13 @@
 package com.densely.simplegallery;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Matrix;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -13,6 +17,7 @@ import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 import touch.TouchActivity;
@@ -26,7 +31,8 @@ import java.util.List;
 
 public class FullSizeActivity extends TouchActivity {
 	
-	private static final int EXIT = 0;
+	private static final int ABOUT = 0;
+    final int DIALOG = 1;
     private static final int SWIPE_MIN_DISTANCE = 120;
     private static final int SWIPE_MAX_OFF_PATH = 250;
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
@@ -74,10 +80,20 @@ public class FullSizeActivity extends TouchActivity {
             indexEditor.commit();
         }
 
+        Configuration config = getResources().getConfiguration();
+        if (config.orientation == Configuration.ORIENTATION_PORTRAIT)
+        {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
+        else
+        {
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
 
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.fullsize);
+
+
         ImageView iv = (ImageView) findViewById(R.id.zero);
 
         File data_directory = new File(DATA_DIRECTORY);
@@ -157,21 +173,16 @@ public class FullSizeActivity extends TouchActivity {
         super.onCreateOptionsMenu(menu);
 
         int NONE = Menu.NONE;
-        menu.add(NONE, EXIT, NONE, "Exit");
+        menu.add(NONE, ABOUT, NONE, "About");
         return true;
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case EXIT:
-                //quit();
+            case ABOUT:
+                showDialog(DIALOG);
 
-                Intent i = new Intent(getApplicationContext(),
-                       ShareActivity.class);
 
-                i.putExtra("Path", ImageList.get(currentIndex));
-
-                startActivity(i);
 
                 break;
         }
@@ -428,6 +439,44 @@ public class FullSizeActivity extends TouchActivity {
             return false;
         }
 
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        AlertDialog.Builder adb = new AlertDialog.Builder(this);
+        adb.setTitle("About");
+
+        LinearLayout view = (LinearLayout) getLayoutInflater()
+                .inflate(R.layout.about, null);
+
+        adb.setView(view);
+
+        return adb.create();
+    }
+
+    @Override
+    protected void onPrepareDialog(int id, Dialog dialog) {
+        super.onPrepareDialog(id, dialog);
+        if (id == DIALOG) {
+
+            TextView tvAbout = (TextView) dialog.getWindow().findViewById(
+                    R.id.tvAbout);
+            TextView tvAbout1 = (TextView) dialog.getWindow().findViewById(
+                    R.id.tvAbout1);
+            TextView tvAbout2 = (TextView) dialog.getWindow().findViewById(
+                    R.id.tvAbout2);
+            TextView tvAbout3 = (TextView) dialog.getWindow().findViewById(
+                    R.id.tvAbout3);
+            TextView tvAbout4 = (TextView) dialog.getWindow().findViewById(
+                    R.id.tvAbout4);
+            Typeface face = Typeface.createFromAsset(getAssets(),
+                    "fonts/arial.ttf");
+            tvAbout.setTypeface(face);
+            tvAbout1.setTypeface(face);
+            tvAbout2.setTypeface(face);
+            tvAbout3.setTypeface(face);
+            tvAbout4.setTypeface(face);
+        }
     }
 
 }

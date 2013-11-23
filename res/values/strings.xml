@@ -17,5 +17,6 @@
     <string name="action_location">Where are you?</string>
     <string name="action_location_default">Select one</string>
     <string name="share">Share</string>
+    <string name="setting_lang_title">Lang</string><string name="mail">mail: densely.a@gmail.com</string><string name="version">1.0.0</string><string name="about_short">Simple gallery to view images for Android</string><string name="about_long">To view the images, you must select a folder with pictures. You can flipping images and zooming their very high.</string>
 
 </resources>
