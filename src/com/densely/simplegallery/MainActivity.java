@@ -63,18 +63,19 @@ public class MainActivity extends Activity implements OnClickListener {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position,
                                 long id) {
-
             Intent i = new Intent(getApplicationContext(), FullSizeActivity.class);
             transitionOnFullcreen();
+
             i.putExtra("Path", buffway);
             i.putExtra("IndexImage", position);
+            Log.d("#####", String.valueOf(position));
+            i.putExtra("ImageList", sImageList);
             startActivity(i);
 
         }
     };
 
     private int currentIndex = 0;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

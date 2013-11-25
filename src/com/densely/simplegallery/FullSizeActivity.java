@@ -2,26 +2,38 @@ package com.densely.simplegallery;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.os.SystemClock;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.*;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.ViewFlipper;
+import android.widget.*;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.nostra13.universalimageloader.core.assist.SimpleImageLoadingListener;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
 import touch.TouchActivity;
 import util.FileUtils;
+
 
 
 import java.io.File;
@@ -30,29 +42,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FullSizeActivity extends TouchActivity {
-	
+
+    private static final String STATE_POSITION = "STATE_POSITION";
+    DisplayImageOptions options;
+    ViewPager pager;
+
+
 	private static final int ABOUT = 0;
     final int DIALOG = 1;
     private static final int SWIPE_MIN_DISTANCE = 120;
     private static final int SWIPE_MAX_OFF_PATH = 250;
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
-    static  String DIRECTORY = "/storage/sdcard0/Pictures/";
-    private static String DATA_DIRECTORY = "/storage/sdcard0/Pictures";
-    private static String DATA_FILE = "/storage/sdcard0/imagelist.dat";
     View.OnTouchListener gestureListener;
-    List<String> ImageList;
     private GestureDetector gestureDetector;
-    private Animation slideLeftIn;
-    private Animation slideLeftOut;
-    private Animation slideRightIn;
-    private Animation slideRightOut;
-    private ViewFlipper viewFlipper;
     private int currentView = 0;
     private int currentIndex = 99999;
     private int maxIndex = 0;
     private float mMinZoomScale = 1;
     SharedPreferences indexPrefs;
     private static boolean transitionFromGridView;
+    protected ImageLoader imageLoader;
+    String[] sImageList;
 
     public static void setTransitionFromGridView(){
         transitionFromGridView = true;
@@ -61,25 +71,33 @@ public class FullSizeActivity extends TouchActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent i = getIntent();
 
-        DIRECTORY = i.getStringExtra("Path") + "/";
-        Log.d("RRR123", DIRECTORY);
-        DATA_DIRECTORY = i.getStringExtra("Path") + "/";
-        Log.d("RRR123", DATA_DIRECTORY);
-        DATA_FILE = i.getStringExtra("Path") + "/imagelist.dat";
+        Bundle bundle = getIntent().getExtras();
+        assert bundle != null;
 
+        sImageList = bundle.getStringArray("ImageList");
+        currentView = bundle.getInt("IndexImage");
+        Log.d("#####", String.valueOf(currentView));
+
+
+        Log.d("Fatal", "661");
+
+        imageLoader = ImageLoader.getInstance();
+
+
+
+        Log.d("Fatal", "662");
         if(transitionFromGridView){
-            currentIndex = i.getIntExtra("IndexImage", 0);
+            currentView = bundle.getInt("IndexImage");
             transitionFromGridView = false;
-
+            Log.d("#####", String.valueOf(currentView));
             indexPrefs = getSharedPreferences("currentIndex",
                     MODE_PRIVATE);
             SharedPreferences.Editor indexEditor = indexPrefs.edit();
-            indexEditor.putInt("currentIndex", currentIndex);
+            indexEditor.putInt("currentIndex", currentView);
             indexEditor.commit();
         }
-
+        Log.d("Fatal", "663");
         Configuration config = getResources().getConfiguration();
         if (config.orientation == Configuration.ORIENTATION_PORTRAIT)
         {
@@ -90,75 +108,67 @@ public class FullSizeActivity extends TouchActivity {
             requestWindowFeature(Window.FEATURE_NO_TITLE);
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
+        Log.d("Fatal", "664");
+        setContentView(R.layout.ac_image_pager);
 
-        setContentView(R.layout.fullsize);
 
+        //ImageView iv = (ImageView) findViewById(R.id.zero);
 
-        ImageView iv = (ImageView) findViewById(R.id.zero);
-
-        File data_directory = new File(DATA_DIRECTORY);
-
-        /*ImageList = FindFiles();
-        FileUtils savedata1 = new FileUtils();
-        SystemClock.sleep(100);
-        savedata1.saveArray(DATA_FILE, ImageList);*/
-
-        if (!data_directory.exists()) {
-            if (data_directory.mkdir()) {
-                FileUtils savedata = new FileUtils();
-
-                SystemClock.sleep(100);
-                ImageList = FindFiles();
-                savedata.saveArray(DATA_FILE, ImageList);
-
-            } else {
-                ImageList = FindFiles();
-            }
-
-        } else {
-            File data_file = new File(DATA_FILE);
-            if (!data_file.exists()) {
-                FileUtils savedata = new FileUtils();
-
-                SystemClock.sleep(100);
-                ImageList = FindFiles();
-                savedata.saveArray(DATA_FILE, ImageList);
-            } else {
-                FileUtils readdata = new FileUtils();
-                ImageList = readdata.loadArray(DATA_FILE);
-             }
-        }
-
-        if (ImageList == null) {
+        if (sImageList == null) {
             quit();
         }
 
+        Log.d("Fatal", "666");
 
         SharedPreferences indexPrefs = getSharedPreferences("currentIndex", MODE_PRIVATE);
         if (indexPrefs.contains("currentIndex")) {
-            currentIndex = indexPrefs.getInt("currentIndex", 0);
+            currentView = indexPrefs.getInt("currentIndex", 0);
+
         }
 
-        maxIndex = ImageList.size() - 1;
+        Log.d("Fatal", "667");
+        maxIndex = sImageList.length - 1;
 
-        Log.d("Image #", " "+ImageList.size());
+        Log.d("Image #", " "+sImageList.length);
 
-        viewFlipper = (ViewFlipper) findViewById(R.id.flipper);
-        slideLeftIn = AnimationUtils.loadAnimation(this, R.anim.slide_left_in);
-        slideLeftOut = AnimationUtils.loadAnimation(this, R.anim.slide_left_out);
-        slideRightIn = AnimationUtils.loadAnimation(this, R.anim.slide_right_in);
-        slideRightOut = AnimationUtils.loadAnimation(this, R.anim.slide_right_out);
+        options = new DisplayImageOptions.Builder()
+                .showImageForEmptyUri(R.drawable.ic_empty)
+                .showImageOnFail(R.drawable.ic_error)
+                .resetViewBeforeLoading(true)
+                .cacheOnDisc(true)
+                .imageScaleType(ImageScaleType.EXACTLY)
+                .bitmapConfig(Bitmap.Config.RGB_565)
+                .considerExifParams(true)
+                .displayer(new FadeInBitmapDisplayer(300))
+                .build();
+        initImageLoader(getApplicationContext());
 
-        viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_in));
-        viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_out));
 
-        Drawable d = Drawable.createFromPath(ImageList.get(currentIndex));
+        Log.d("Fatal", "668");
+        pager = (ViewPager) findViewById(R.id.pager);
+        pager.setAdapter(new ImagePagerAdapter(sImageList));
+        pager.setCurrentItem(currentView);
 
-        iv.setImageDrawable(d);
-        resetImage(iv, d);
-        System.gc();
+        Log.d("Fatal", "669");
 
-        gestureDetector = new GestureDetector(new MyGestureDetector());
+
+
+        //viewFlipper = (ViewFlipper) findViewById(R.id.flipper);
+        //slideLeftIn = AnimationUtils.loadAnimation(this, R.anim.slide_left_in);
+        //slideLeftOut = AnimationUtils.loadAnimation(this, R.anim.slide_left_out);
+        //slideRightIn = AnimationUtils.loadAnimation(this, R.anim.slide_right_in);
+        //slideRightOut = AnimationUtils.loadAnimation(this, R.anim.slide_right_out);
+
+        //viewFlipper.setInAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_in));
+        //viewFlipper.setOutAnimation(AnimationUtils.loadAnimation(this, android.R.anim.fade_out));
+
+        //Drawable d = Drawable.createFromPath(ImageList.get(currentIndex));
+
+        //iv.setImageDrawable(d);
+        //resetImage(iv, d);
+        //System.gc();
+
+        /*gestureDetector = new GestureDetector(new MyGestureDetector());
         gestureListener = new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
                 if (gestureDetector.onTouchEvent(event)) {
@@ -166,7 +176,106 @@ public class FullSizeActivity extends TouchActivity {
                 }
                 return false;
             }
-        };
+        };*/
+    }
+
+    private class ImagePagerAdapter extends PagerAdapter {
+
+        private String[] images;
+        private LayoutInflater inflater;
+
+        ImagePagerAdapter(String[] images) {
+            this.images = images;
+            inflater = getLayoutInflater();
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView((View) object);
+        }
+
+        @Override
+        public int getCount() {
+            return images.length;
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup view, int position) {
+            View imageLayout = inflater.inflate(R.layout.item_pager_image, view, false);
+            assert imageLayout != null;
+            ImageView imageView = (ImageView) imageLayout.findViewById(R.id.image);
+            final ProgressBar spinner = (ProgressBar) imageLayout.findViewById(R.id.loading);
+
+            imageLoader.displayImage(images[position], imageView, options, new SimpleImageLoadingListener() {
+                @Override
+                public void onLoadingStarted(String imageUri, View view) {
+                    spinner.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                    String message = null;
+                    switch (failReason.getType()) {
+                        case IO_ERROR:
+                            message = "Input/Output error";
+                            break;
+                        case DECODING_ERROR:
+                            message = "Image can't be decoded";
+                            break;
+                        case NETWORK_DENIED:
+                            message = "Downloads are denied";
+                            break;
+                        case OUT_OF_MEMORY:
+                            message = "Out Of Memory error";
+                            break;
+                        case UNKNOWN:
+                            message = "Unknown error";
+                            break;
+                    }
+                    Toast.makeText(FullSizeActivity.this, message, Toast.LENGTH_SHORT).show();
+
+                    spinner.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                    spinner.setVisibility(View.GONE);
+                }
+            });
+
+            view.addView(imageLayout, 0);
+            return imageLayout;
+        }
+
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return view.equals(object);
+        }
+
+        @Override
+        public void restoreState(Parcelable state, ClassLoader loader) {
+        }
+
+        @Override
+        public Parcelable saveState() {
+            return null;
+        }
+    }
+
+    public static void initImageLoader(Context context) {
+        // This configuration tuning is custom. You can tune every option, you may tune some of them,
+        // or you can create default configuration by
+        //  ImageLoaderConfiguration.createDefault(this);
+        // method.
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
+                .threadPriority(Thread.NORM_PRIORITY - 2)
+                .denyCacheImageMultipleSizesInMemory()
+                .discCacheFileNameGenerator(new Md5FileNameGenerator())
+                .tasksProcessingOrder(QueueProcessingType.LIFO)
+                .writeDebugLogs() // Remove for release app
+                .build();
+        // Initialize ImageLoader with configuration.
+        ImageLoader.getInstance().init(config);
     }
 
     @Override
@@ -196,7 +305,7 @@ public class FullSizeActivity extends TouchActivity {
                 MODE_PRIVATE);
 
         SharedPreferences.Editor indexEditor = indexPrefs.edit();
-        indexEditor.putInt("currentIndex", currentIndex);
+        indexEditor.putInt("currentIndex", currentView);
         indexEditor.commit();
     }
 
@@ -205,38 +314,11 @@ public class FullSizeActivity extends TouchActivity {
         SharedPreferences indexPrefs = getSharedPreferences("currentIndex",
                 MODE_PRIVATE);
         if (indexPrefs.contains("currentIndex")) {
-            currentIndex = indexPrefs.getInt("currentIndex", 0);
+            currentView = indexPrefs.getInt("currentIndex", 0);
         }
     }
 
-    private List<String> FindFiles() {
-        List<String> tFileList = new ArrayList<String>();
-        Resources resources = getResources();
-        // array of valid image file extensions
-        String[] imageTypes = resources.getStringArray(R.array.image);
-        FilenameFilter[] filter = new FilenameFilter[imageTypes.length];
 
-        int i = 0;
-        for (final String type : imageTypes) {
-            filter[i] = new FilenameFilter() {
-                public boolean accept(File dir, String name) {
-
-                    return name.endsWith("." + type);
-                }
-            };
-
-            i++;
-        }
-
-        FileUtils fileUtils = new FileUtils();
-        File[] allMatchingFiles = fileUtils.listFilesAsArray(
-                new File(DIRECTORY), filter, -1);
-        for (File f : allMatchingFiles) {
-            tFileList.add(f.getAbsolutePath());
-            Log.d("Finded files", f.getAbsolutePath().toString());
-        }
-        return tFileList;
-    }
 
 
 
@@ -287,7 +369,7 @@ public class FullSizeActivity extends TouchActivity {
         return mMinZoomScale;
     }
 
-    @Override
+    /*@Override
     public boolean onTouchEvent(MotionEvent rawEvent) {
         if (gestureDetector.onTouchEvent(rawEvent))
             return true;
@@ -308,7 +390,7 @@ public class FullSizeActivity extends TouchActivity {
         onTouchEvented(view, rawEvent);
 
         return true;
-    }
+    }*/
 
     public void quit() {
         SharedPreferences indexPrefs = getSharedPreferences("currentIndex",
@@ -325,10 +407,23 @@ public class FullSizeActivity extends TouchActivity {
         System.exit(0);
     }
 
-    class MyGestureDetector extends SimpleOnGestureListener {
 
 
-        @Override
+
+
+
+
+
+
+
+
+
+
+
+    /*class MyGestureDetector extends SimpleOnGestureListener {
+
+
+        *//*@Override
         public boolean onDoubleTap(final MotionEvent e) {
 
             ImageView view = (ImageView) findViewById(R.id.zero);
@@ -348,12 +443,12 @@ public class FullSizeActivity extends TouchActivity {
 
             resetImage(view, view.getDrawable());
             return true;
-        }
+        }*//*
 
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
                                float velocityY) {
-            try {
+        *//*    try {
                 if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
                     return false;
                 // right to left swipe
@@ -434,11 +529,11 @@ public class FullSizeActivity extends TouchActivity {
                 }
             } catch (Exception e) {
                 // nothing
-            }
+            }*//*
             return false;
         }
 
-    }
+    }*/
 
     @Override
     protected Dialog onCreateDialog(int id) {
