@@ -3,24 +3,28 @@ package com.densely.simplegallery;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
-import android.view.Display;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.view.View.OnClickListener;
 
 
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import util.FileUtils;
 
 import java.io.File;
@@ -50,6 +54,9 @@ public class MainActivity extends Activity implements OnClickListener {
     List<String> ImageList;
     ImageView ivBackGround;
     int widthScreen;
+    String[] sImageList = new String[1];
+    DisplayImageOptions options;
+    protected ImageLoader imageLoader = ImageLoader.getInstance();
 
     OnItemClickListener myOnItemClickListener = new OnItemClickListener() {
 
@@ -81,19 +88,50 @@ public class MainActivity extends Activity implements OnClickListener {
         ivBackGround = (ImageView) findViewById(R.id.ivBackGround);
         GridView gridview = (GridView) findViewById(R.id.gridview);
 
-        if (mybuffway != null) {
-            tvWay.setText(mybuffway);
+        options = new DisplayImageOptions.Builder()
+                .showImageOnLoading(R.drawable.ic_launcher)
+                .showImageForEmptyUri(R.drawable.ic_empty)
+                .showImageOnFail(R.drawable.ic_error)
+                .cacheInMemory(true)
+                .cacheOnDisc(true)
+                .considerExifParams(true)
+                .bitmapConfig(Bitmap.Config.RGB_565)
+                .build();
+        initImageLoader(getApplicationContext());
+        if (DIRECTORY != null) {
+            tvWay.setText(DIRECTORY);
         }
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
-        display.getSize(size);
+
+        try {
+            display.getSize(size);
+        } catch (java.lang.NoSuchMethodError ignore) { // Older device
+            size.x = display.getWidth();
+            size.y = display.getHeight();
+        }
+
         widthScreen = size.x;
 
         setFirstImageBackGround();
         gridview.setOnItemClickListener(myOnItemClickListener);
 
     }
-
+    public static void initImageLoader(Context context) {
+        // This configuration tuning is custom. You can tune every option, you may tune some of them,
+        // or you can create default configuration by
+        //  ImageLoaderConfiguration.createDefault(this);
+        // method.
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
+                .threadPriority(Thread.NORM_PRIORITY - 2)
+                .denyCacheImageMultipleSizesInMemory()
+                .discCacheFileNameGenerator(new Md5FileNameGenerator())
+                .tasksProcessingOrder(QueueProcessingType.LIFO)
+                .writeDebugLogs() // Remove for release app
+                .build();
+        // Initialize ImageLoader with configuration.
+        ImageLoader.getInstance().init(config);
+    }
     public void transitionOnFullcreen() {
         FullSizeActivity.setTransitionFromGridView();
     }
@@ -163,6 +201,16 @@ public class MainActivity extends Activity implements OnClickListener {
 
                     }
 
+                    sImageList = new String[ImageList.size()];
+                    sImageList = ImageList.toArray(sImageList);
+                    int i = 0;
+                    for(String s : sImageList){
+                        sImageList[i] = "file://" + s;
+                        i++;
+                        Log.d("Files666", s);
+                    }
+
+
                     this.workIt();
 
                     break;
@@ -174,18 +222,61 @@ public class MainActivity extends Activity implements OnClickListener {
     public void workIt(){
         this.tvWay.setText(DIRECTORY);
 
-        myImageAdapter = new ImageAdapter(this);
-        myImageAdapter.setSize((int) (widthScreen/3.18));
-        GridView gridview = (GridView) findViewById(R.id.gridview);
-        gridview.setAdapter(myImageAdapter);
 
-        Toast.makeText(getApplicationContext(), DIRECTORY, Toast.LENGTH_LONG).show();
+
+        GridView gridview = (GridView) findViewById(R.id.gridview);
+
+        gridview.setAdapter(new ImageAdapter());
+
+
+
+
+
+        //myImageAdapter.setSize((int) (widthScreen/3.18));
+
+        //gridview.setAdapter(myImageAdapter);
+
+        /*Toast.makeText(getApplicationContext(), DIRECTORY, Toast.LENGTH_LONG).show();
 
         for (String aImageList : ImageList) {
-
+            Log.d("File Name", aImageList);
             myImageAdapter.add(aImageList);
-        }
+
+        }*/
     }
+
+    public class ImageAdapter extends BaseAdapter {
+        @Override
+        public int getCount() {
+            return sImageList.length;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            final ImageView imageView;
+            if (convertView == null) {
+                imageView = (ImageView) getLayoutInflater().inflate(R.layout.item_grid_image, parent, false);
+            } else {
+                imageView = (ImageView) convertView;
+            }
+
+            imageLoader.displayImage(sImageList[position], imageView, options);
+
+            return imageView;
+        }
+
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

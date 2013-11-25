@@ -97,6 +97,7 @@ public class FullSizeActivity extends TouchActivity {
         ImageView iv = (ImageView) findViewById(R.id.zero);
 
         File data_directory = new File(DATA_DIRECTORY);
+
         /*ImageList = FindFiles();
         FileUtils savedata1 = new FileUtils();
         SystemClock.sleep(100);

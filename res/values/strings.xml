@@ -7,6 +7,6 @@
     <string name="mail">mail: densely.a@gmail.com</string>
     <string name="version">1.0.0</string>
     <string name="about_short">Simple gallery to view images for Android</string>
-    <string name="about_long">To view the images, you must select a folder with pictures. You can flipping images and zooming their.</string><string name="tv_start_text">Please, choose the folder with Pictures</string><string name="browse">Browse...</string><string name="choose">Choose</string>
+    <string name="about_long">To view the images, you must select a folder with pictures. You can flipping images and zooming them.</string><string name="tv_start_text">Please, choose the folder with Pictures</string><string name="browse">Browse...</string><string name="choose">Choose</string>
     <string name="action_settings">Settings</string>
 </resources>
